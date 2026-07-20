@@ -1,5 +1,4 @@
-const crypto = require('crypto');
-
+// config.js
 const state = {
     // Array of user IDs authorized to access the admin panel
     admins: ['admin_user_1', 'creator_id_99'],
@@ -27,8 +26,10 @@ const state = {
     players: {}
 };
 
+// Uses the universally supported global Web Crypto API instead of Node's legacy module
 function generatePlayerId() {
-    return 'PLY-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+    const uuid = globalThis.crypto.randomUUID();
+    return 'PLY-' + uuid.split('-')[0].toUpperCase();
 }
 
 module.exports = {
