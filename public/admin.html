@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casino Master Admin Engine</title>
+    <style>
+        body {
+            background-color: #0a0b10;
+            color: #cfd4fc;
+            font-family: monospace;
+            padding: 30px;
+        }
+
+        .panel-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            border: 1px dashed #ff0055;
+            padding: 25px;
+            background-color: #11121a;
+        }
+
+        h2 { color: #ff0055; text-transform: uppercase; margin-top: 0; }
+
+        .control-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background-color: #181a26;
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        input, select, button {
+            background-color: #000;
+            border: 1px solid #ff0055;
+            color: #00ffcc;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #ff0055;
+            color: white;
+            font-weight: bold;
+            border: none;
+        }
+
+        button:hover { background-color: #cc0044; }
+
+        .console-output {
+            background-color: black;
+            border: 1px solid #333;
+            padding: 15px;
+            height: 250px;
+            overflow-y: scroll;
+            color: #39ff14;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="panel-container">
+    <h2>System Administration Terminal</h2>
+    <p>Authentication Required Header Pass-through: <code>X-User-Id: creator_id_99</code></p>
+    
+    <!-- Player Operations -->
+    <fieldset style="border: 1px solid #2d3250; margin-bottom: 20px;">
+        <legend style="color: #00ffcc; padding: 0 10px;">Targeted Player Modification</legend>
+        <div class="control-row">
+            <input type="text" id="target-id" placeholder="PLAYER ID (e.g., PLY-XXXX)">
+            <input type="number" id="mod-amount" placeholder="Currency Amount">
+            <select id="balance-action">
+                <option value="grant">Grant Capital Balance</option>
+                <option value="take">Revoke Assets/Funds</option>
+            </select>
+            <button onclick="executeBalanceAdjustment()">Execute Modification</button>
+        </div>
+
+        <div class="control-row">
+            <button onclick="toggleBan(true)" style="background-color: #440011;">Issue Immediate Permanent Account Ban</button>
+            <button onclick="toggleBan(false)" style="background-color: #114422;">Lift Suspension (Unban)</button>
+        </div>
+    </fieldset>
+
+    <!-- Global Framework Modifiers -->
+    <fieldset style="border: 1px solid #2d3250; margin-bottom: 20px;">
+        <legend style="color: #00ffcc; padding: 0 10px;">Global System Overrides</legend>
+        <div class="control-row" style="justify-content: space-between;">
+            <button onclick="triggerGlobalEvent('LUCK_BOOST')">⚡ TRIGGER LUCK BOOST</button>
+            <button onclick="triggerGlobalEvent('PAYOUT_FRENZY')">💰 TRIGGER PAYOUT FRENZY (2.5x)</button>
+            <button onclick="triggerGlobalEvent('STOCK_CRASH')" style="background-color:#774400;">🚨 FORCE GLOBAL STOCK CRASH</button>
+            <button onclick="triggerGlobalEvent('PROPERTY_CRASH')" style="background-color:#774400;">📉 FORCE HOUSING CRISIS EVENT</button>
+            <button onclick="triggerGlobalEvent('RESET_NORMAL')" style="background-color:#444;">RESET ALL TO NORMAL</button>
+        </div>
+    </fieldset>
+
+    <h3>Live Framework Logs</h3>
+    <div class="console-output" id="console-stream">
+        [SYSTEM INITIALIZED] Ready to transmit administrative adjustments...
+    </div>
+</div>
+
+<script>
+    // Helper headers array setting admin execution token defined inside config.js
+    const adminHeaders = {
+        'Content-Type': 'application/json',
+        'x-user-id': 'creator_id_99'
+    };
+
+    function logToConsole(msg) {
+        const con = document.getElementById('console-stream');
+        con.innerHTML += `<br>[${new Date().toLocaleTimeString()}] ${msg}`;
+        con.scrollTop = con.scrollHeight;
+    }
+
+    async function executeBalanceAdjustment() {
+        const targetPlayerId = document.getElementById('target-id').value;
+        const amount = document.getElementById('mod-amount').value;
+        const action = document.getElementById('balance-action').value;
+
+        const res = await fetch('/api/admin/adjust-balance', {
+            method: 'POST',
+            headers: adminHeaders,
+            body: JSON.stringify({ targetPlayerId, amount, action })
+        });
+        const data = await res.json();
+        
+        if (data.error) logToConsole(`ERROR: ${data.error}`);
+        else logToConsole(`SUCCESS: Adjusted balance for ${targetPlayerId}. Wallet cash balance updated.`);
+    }
+
+    async function toggleBan(banStatus) {
+        const targetPlayerId = document.getElementById('target-id').value;
+        const res = await fetch('/api/admin/set-ban-status', {
+            method: 'POST',
+            headers: adminHeaders,
+            body: JSON.stringify({ targetPlayerId, isBanned: banStatus })
+        });
+        const data = await res.json();
+        
+        if (data.error) logToConsole(`ERROR: ${data.error}`);
+        else logToConsole(`SUCCESS: Ban status of ${targetPlayerId} shifted to ${banStatus}`);
+    }
+
+    async function triggerGlobalEvent(eventType) {
+        const res = await fetch('/api/admin/trigger-event', {
+            method: 'POST',
+            headers: adminHeaders,
+            body: JSON.stringify({ eventType })
+        });
+        const data = await res.json();
+        
+        if (data.error) logToConsole(`ERROR: ${data.error}`);
+        else logToConsole(`SYSTEM ALERT: Global Event synced: "${data.message}". Active status context changed.`);
+    }
+</script>
+</body>
+</html>
