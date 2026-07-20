@@ -2,15 +2,18 @@ const express = require('express');
 const { state, generatePlayerId } = require('./config');
 const { isAdmin, checkPlayerStatus } = require('./middleware');
 
-// Import Controller Route Actions
-const adminController = require('./controllers/adminController');
-const economyController = require('./controllers/economyController');
-const gameController = require('./controllers/gameController');
-
+// 1. Initialize the app variable first
 const app = express();
 const PORT = 3000;
 
+// 2. Add your global middleware configurations next
 app.use(express.json());
+app.use(express.static('public'));
+
+// 3. Import your Controller Route Actions
+const adminController = require('./controllers/adminController');
+const economyController = require('./controllers/economyController');
+const gameController = require('./controllers/gameController');
 
 // --- PLAYER ACCOUNT INITIALIZATION ---
 app.post('/api/auth/register-or-login', (req, res) => {
