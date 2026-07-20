@@ -1,4 +1,10 @@
+// middleware.js
 const { state } = require('./config');
+
+// Forces Vercel to treat this as a standard Serverless function instead of an Edge function
+export const config = {
+    runtime: 'nodejs'
+};
 
 // Middleware to check if a user is in the admin array
 function isAdmin(req, res, next) {
