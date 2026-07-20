@@ -1,0 +1,12 @@
+{
+  "name": "casino-economy-engine",
+  "version": "1.0.0",
+  "description": "Backend engine for a simulated casino and virtual world economy game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
